@@ -18,4 +18,5 @@ RUN curl -L -o voos_pipeline_minimal.joblib \
   https://github.com/BrunoEnrico/flight-api/raw/main/voos_pipeline_minimal.joblib
 
 EXPOSE 8000
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port $PORT"]
+
