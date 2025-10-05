@@ -72,6 +72,10 @@ def predict_delay(f: FlightInput):
     except Exception as e:
         return {"error": str(e)}
 
+@app.get("/")
+def root():
+    return {"status": "online"}
+
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
