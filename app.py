@@ -1,24 +1,17 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import pandas as pd
-import pickle
+import joblib
 
-# ======================================================
-# 🚀 Inicialização
-# ======================================================
 app = FastAPI(title="✈️ API Atrasos - CatBoost GPU v4.0 Minimal")
 
-# Carrega modelo
-with open("voos_pipeline_catboost_v4_gpu.pkl", "rb") as f:
-    pipe = pickle.load(f)
+# Carrega modelo leve via joblib
+pipe = joblib.load("voos_pipeline_minimal.joblib")
 
 model = pipe["model"]
 calibrator = pipe.get("calibrator", None)
 threshold = pipe["metadata"]["threshold"]
 
-# ======================================================
-# 📥 Estrutura de entrada
-# ======================================================
 class FlightInput(BaseModel):
     empresa_aerea: str
     aeroporto_origem: str
@@ -28,9 +21,6 @@ class FlightInput(BaseModel):
     dia_da_semana: int
     periodo_dia: str
 
-# ======================================================
-# ⚙️ Predição
-# ======================================================
 @app.post("/predict")
 def predict_delay(f: FlightInput):
     try:
@@ -67,7 +57,6 @@ def predict_delay(f: FlightInput):
             "TENDENCIA_SAZONAL": atraso_padrao / (atraso_padrao + 1e-6)
         }])
 
-        # Faz previsão
         if calibrator:
             prob = calibrator.predict_proba(df)[:, 1][0]
         elif hasattr(model, "predict_proba"):
@@ -78,17 +67,11 @@ def predict_delay(f: FlightInput):
         pred = int(prob >= threshold)
         confidence = prob if pred == 1 else (1 - prob)
 
-        return {
-            "prediction": pred,
-            "confidence": round(float(confidence), 4)
-        }
+        return {"prediction": pred, "confidence": round(float(confidence), 4)}
 
     except Exception as e:
         return {"error": str(e)}
 
-# ======================================================
-# 🩺 Healthcheck opcional
-# ======================================================
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
