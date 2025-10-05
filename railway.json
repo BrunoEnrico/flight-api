@@ -1,9 +1,9 @@
 {
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "apt-get update && apt-get install -y git-lfs && git lfs install && git lfs pull && pip install --upgrade pip && pip install -r requirements.txt"
+    "buildCommand": "apt-get update && apt-get install -y git git-lfs curl && git lfs install && pip install -r requirements.txt"
   },
   "deploy": {
-    "startCommand": "uvicorn app:app --host 0.0.0.0 --port $PORT"
+    "startCommand": "sh -c 'uvicorn app:app --host 0.0.0.0 --port ${PORT:-8000}'"
   }
 }
