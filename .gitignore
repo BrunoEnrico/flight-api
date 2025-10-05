@@ -1,0 +1,10 @@
+# 🧠 Ignorar configs de IDE
+.idea/
+
+# 🧹 Ignorar caches e outros lixos
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.DS_Store
